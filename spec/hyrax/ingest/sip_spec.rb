@@ -1,20 +1,11 @@
-require 'hyrax/ingest/attribute_ingester.rb'
+require 'spec_helper'
+require 'hyrax/ingest/sip.rb'
 
 RSpec.describe Hyrax::Ingest::SIP do
-
   describe '.new' do
     context 'when given an invalid path' do
-      subject { described_class.new(false) }
       it 'raises an InvalidSIPPath error' do
-        
-      end
-    end
-
-  describe '#files' do
-    context 'when SIP is a single file' do
-      subject { described_class.new() }
-      it 'returns an array containing only that one file' do
-
+        expect { described_class.new('path/to/nothing') }.to raise_error Hyrax::Ingest::Errors::InvalidSIPPath
       end
     end
   end

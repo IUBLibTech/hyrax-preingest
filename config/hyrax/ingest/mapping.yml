@@ -1,0 +1,14 @@
+---
+mapping:
+    - from:
+        xml_file: '/MDPI_.*_pres_ffprobe\.xml/'
+        xpath: 'xpath/to/title'
+      to:
+        af_model: Work
+        rdf_property: dc:title
+    - from:
+        xml_file: 'MDPI_40000000054496.xml'
+        xpath: 'xpath/to/description'
+      to:
+        af_model: Work
+        rdf_property: dc:description
