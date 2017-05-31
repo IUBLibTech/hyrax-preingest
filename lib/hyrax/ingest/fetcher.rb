@@ -1,11 +1,12 @@
 require 'hyrax/ingest/mapping'
 require 'hyrax/ingest/fetcher/from_xml'
+require 'hyrax/ingest/errors'
 
 module Hyrax
   module Ingest
     module Fetcher
       class << self
-        def factory(sip:, params:)
+        def factory(params:, sip:)
           if params[:xml_file]
             # TODO: Move this String-to-Regexp logic to a better location?
             xml_file = sip.files.find do |file|
@@ -22,7 +23,7 @@ module Hyrax
             raise Hyrax::Ingest::Errors::FileNotFoundInSIP.new(params[:xml_file]) if xml_file.nil?
             Hyrax::Ingest::Fetcher::FromXML.new(xml_file: xml_file, xpath: params[:xpath])
           else
-            raise UnrecognizedMappingOptions, "Unrecognized options for mapping from #{params}"
+            raise Hyrax::Ingest::Errors::AmbiguousMappingOptions, "Unrecognized options for mapping from #{params}"
           end
         end
       end

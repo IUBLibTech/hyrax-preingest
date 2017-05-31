@@ -19,6 +19,12 @@ module Hyrax
         end
       end
 
+      class AmbiguousMappingOptions < StandardError
+        def initialize(ambiguous_options)
+          super("Could not determine which mapper to use given the following options: #{ambiguous_options}")
+        end
+      end
+
       # TODO: Add helpful messages to any custom errors without them.
       class InvalidFetchOptions < StandardError; end
       class InvalidAssignmentOptions < StandardError; end
