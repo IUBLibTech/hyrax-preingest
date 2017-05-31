@@ -17,12 +17,18 @@ module Hyrax
 
       # @return [Array] A list of File objects that are part of the SIP
       def files
+        @files ||= single_file
         @files ||= files_from_dir
         @files ||= files_from_tarball
         @files ||= []
       end
 
       private
+
+        # @return Array An Array containing the one and only file pointed to by #path
+        def single_file
+          [File.new(path)] if File.file? path
+        end
 
         def files_from_dir
           if File.directory? path
