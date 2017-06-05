@@ -3,21 +3,51 @@ require 'hyrax/ingest/fetcher'
 require 'hyrax/ingest/sip'
 
 RSpec.describe Hyrax::Ingest::Fetcher do
-  describe '.factory' do
-    let(:sip) { Hyrax::Ingest::SIP.new(path: "#{fixture_path}/sip_examples/fits_example_1.xml") }
+  describe '.find_class_by_name' do
+    before do
+      # Create a couple of test fetcher classses with the same base name,
+      # but in different namespaces.
+      module ::ArbitraryNamespace1
+        class TestFetcherClass < Hyrax::Ingest::Fetcher::Base; end
+      end
 
-    context 'when given params that specify fetching from an xml file by name' do
-      let(:params) { {xml_file: 'fits_example_1.xml' } }
-      subject { described_class.factory(sip: sip, params: params) }
-      it 'returns an instance of Hyrax::Ingest::Fetcher::FromXML' do
-        expect(subject).to be_a Hyrax::Ingest::Fetcher::FromXML
+      module ::ArbitraryNamespace2
+        class TestFetcherClass < Hyrax::Ingest::Fetcher::Base; end
+      end
+
+      allow(described_class).to receive(:all_classes).and_return(
+        [
+          ::ArbitraryNamespace1::TestFetcherClass,
+          ::ArbitraryNamespace2::TestFetcherClass
+        ]
+      )
+    end
+
+    context 'when the fetcher class name is ambiguous given the list of all available fetcher classes' do
+      it 'raises a Hyrax::Ingest::Errors::AmbiguousFetcherClass' do
+        expect { described_class.factory("TestFetcherClass") }.to raise_error Hyrax::Ingest::Errors::AmbiguousFetcherClass
       end
     end
 
-    context 'when given params that are too ambiguous to determine the appropriate mapper' do
-      subject { described_class.factory(sip: sip, params: {}) }
-      it 'raises an AmbiguousMappingOptions error' do
-        expect { subject }.to raise_error Hyrax::Ingest::Errors::AmbiguousMappingOptions
+    context 'when the fetcher class name is unknown' do
+      it 'raises a Hyrax::Ingest::Errors::UnknownFetcherClass error' do
+        expect { described_class.factory("ThisClassDoesNotExist") }.to raise_error Hyrax::Ingest::Errors::UnknownFetcherClass
+      end
+    end
+
+    after do
+        # undefine constants defined for these tests
+        ::ArbitraryNamespace1.send(:remove_const, :TestFetcherClass)
+        ::ArbitraryNamespace2.send(:remove_const, :TestFetcherClass)
+        Object.send(:remove_const, :ArbitraryNamespace1)
+        Object.send(:remove_const, :ArbitraryNamespace2)
+    end
+  end
+
+  describe '.factory' do
+    context 'when given params that specify fetching to an XMLFilke fetcher class' do
+      it 'returns an instance of Hyrax::Ingest::Fetcher::XMLFile' do
+        expect(described_class.factory('XMLFile')).to be_a Hyrax::Ingest::Fetcher::XMLFile
       end
     end
   end
