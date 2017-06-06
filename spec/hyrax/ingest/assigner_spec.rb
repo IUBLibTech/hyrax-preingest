@@ -35,28 +35,21 @@ RSpec.describe Hyrax::Ingest::Assigner do
         expect { described_class.factory("ThisClassDoesNotExist") }.to raise_error Hyrax::Ingest::Errors::UnknownAssignerClass
       end
     end
-  end
-
-  describe '.factory' do
-    before do
-      class TestActiveFedoraModel < ActiveFedora::Base
-        property :foo, predicate: ::RDF::URI.new('http://example.org#foo')
-      end
-    end
-
-    context 'when given params that specify assigning to an ActiveFedoraModel assigner class' do
-      it 'returns an instance of Hyrax::Ingest::Assigner::ActiveFedoraModel' do
-        expect(described_class.factory('ActiveFedoraModel')).to be_a Hyrax::Ingest::Assigner::ActiveFedoraModel
-      end
-    end
 
     after do
       # undefine constants defined for these tests
-      Object.send(:remove_const, :TestActiveFedoraModel)
       ::ArbitraryNamespace1.send(:remove_const, :TestAssignerClass)
       ::ArbitraryNamespace2.send(:remove_const, :TestAssignerClass)
       Object.send(:remove_const, :ArbitraryNamespace1)
       Object.send(:remove_const, :ArbitraryNamespace2)
+    end
+  end
+
+  describe '.factory' do
+    context 'when given params that specify assigning to an ActiveFedoraModel assigner class' do
+      it 'returns an instance of Hyrax::Ingest::Assigner::ActiveFedoraModel' do
+        expect(described_class.factory('ActiveFedoraModel')).to be_a Hyrax::Ingest::Assigner::ActiveFedoraModel
+      end
     end
   end
 end

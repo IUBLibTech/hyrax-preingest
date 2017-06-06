@@ -47,7 +47,7 @@ RSpec.describe Hyrax::Ingest::Fetcher do
   describe '.factory' do
     context 'when given params that specify fetching to an XMLFilke fetcher class' do
       it 'returns an instance of Hyrax::Ingest::Fetcher::XMLFile' do
-        expect(described_class.factory('XMLFile')).to be_a Hyrax::Ingest::Fetcher::XMLFile
+        expect(described_class.factory('XMLFile', filename: 'foo', xpath: 'bar')).to be_a Hyrax::Ingest::Fetcher::XMLFile
       end
     end
   end

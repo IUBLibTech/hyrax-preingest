@@ -11,6 +11,18 @@ module Hyrax
         end
       end
 
+      class NoSIPSpecified < Hyrax::Ingest::Error
+        def initialize(fetcher_obj)
+          super("No SIP was specified. Set the sip with #{fetcher_obj.class}#sip=")
+        end
+      end
+
+      class InvalidSIP < Hyrax::Ingest::Error
+        def initialize(fetcher_obj, invalid_sip_obj)
+          super("Invalid SIP object. SIP must be an instance of Hyrax::Ingest::SIP (or an instance of a subclass) but an instance of #{invalid_sip_obj.class} was found. Set a valid SIP object with #{fetcher_obj.class}#sip=")
+        end
+      end
+
       class UnknownActiveFedoraModel < Hyrax::Ingest::Error
         def initialize(af_model_class)
           super("Unknown ActiveFedora model type #{af_model_class}")
