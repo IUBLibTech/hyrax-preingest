@@ -47,9 +47,20 @@ RSpec.describe Hyrax::Ingest::Assigner do
 
   describe '.factory' do
     context 'when given params that specify assigning to an ActiveFedoraModel assigner class' do
-      it 'returns an instance of Hyrax::Ingest::Assigner::ActiveFedoraModel' do
-        expect(described_class.factory('ActiveFedoraModel')).to be_a Hyrax::Ingest::Assigner::ActiveFedoraModel
+      before do
+        class TestActiveFedoraModel < ActiveFedora::Base
+          property :foo, predicate: ::RDF::URI.new('http://example.org#foo')
+        end
       end
+
+      let(:options) { { type: "TestActiveFedoraModel", rdf_predicate: 'http://example.org#foo'} }
+
+      it 'returns an instance of Hyrax::Ingest::Assigner::ActiveFedoraModel' do
+        expect(described_class.factory('ActiveFedoraModel', options)).to be_a Hyrax::Ingest::Assigner::ActiveFedoraModel
+      end
+
+      # Undefine the test class
+      after { Object.send(:remove_const, :TestActiveFedoraModel) }
     end
   end
 end
