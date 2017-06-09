@@ -9,7 +9,7 @@ module Hyrax
       end
 
       def map!
-        assigner.assign(value: fetcher.fetch)
+        assigner.assign(fetcher.fetch)
       end
     end
   end
