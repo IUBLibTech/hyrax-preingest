@@ -1,14 +1,20 @@
 ---
 mapping:
     - from:
-        xml_file: '/MDPI_.*_pres_ffprobe\.xml/'
-        xpath: 'xpath/to/title'
-      to:
-        af_model: Work
-        rdf_property: dc:title
+        XMLFile:
+            filename: '/MDPI_.*_pres_ffprobe\.xml/'
+            xpath: 'xpath/to/title'
+    - to:
+        ActiveFedoraModel:
+            type: Work
+            instance_name: original_file
+            rdf_property: 'http://example.org#title'
     - from:
-        xml_file: 'MDPI_40000000054496.xml'
-        xpath: 'xpath/to/description'
+        XMLFile:
+            filename: 'MDPI_40000000054496.xml'
+            xpath: 'xpath/to/description'
       to:
-        af_model: Work
-        rdf_property: dc:description
+        ActiveFedoraModel:
+            type: Work
+            instance_name: original_file
+            rdf_property: dc:description

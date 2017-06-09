@@ -3,78 +3,29 @@ require 'hyrax/ingest/mapping'
 
 RSpec.describe Hyrax::Ingest::Mapping do
 
-  let(:mapping) { described_class.new }
-
-  describe '#from' do
-    let(:mock_fetcher_factory) { class_double('Hyrax::Ingest::Fetchers::Factory').as_stubbed_const }
-    let(:mock_fetch_options) { { foo: :bar } }
-
-    before do
-      allow(mock_fetcher_factory).to receive(:create).with(mock_fetch_options).and_return(nil)
-    end
-
-    it 'calls Hyrax::Ingest::Fetchers::Factory.create' do
-      expect(mock_fetcher_factory).to receive(:create).with(mock_fetch_options)
-      mapping.from(mock_fetch_options)
-    end
-
-    it 'returns the same instance of Hyrax::Ingest::Mapping' do
-      expect(mapping.from(mock_fetch_options)).to eq mapping
-    end
+  before do
+    class Work < ActiveFedora::Base; end
   end
 
 
-  describe '#fetch' do
-    context 'when no fetch configuration has been set' do
-      it 'raises a InvalidFetchOptions' do
-        expect { mapping.fetch }.to raise_error Hyrax::Ingest::Errors::InvalidFetchOptions
-      end
-    end
+  let(:sip) { Hyrax::Ingest::SIP.new(path: "#{fixture_path}/sip_examples/40000000054496_20160213-082528") }
+  let(:config_yaml) { Psych.load_file("#{fixture_path}/ingest_mapping_samples/ingest_mapping_example_1.yml") }
+  subject { described_class.new(sip: sip, config: config_yaml["mapping"]) }
 
-    context 'when configured to fetch values from an XML file' do
-      it 'fetches values from an XML file' do
-        expect(mapping.fetch).to eq 'TODO: PUT IN THE ACTUAL VALUE HERE'
+  describe '#map_operations' do
+    it 'returns a list of MapOperation instances' do
+      subject.map_operations.each do |map_operation|
+        expect(map_operation).to be_a Hyrax::Ingest::MapOperation
       end
     end
   end
 
-  describe '#assign' do
-    context 'when no fetch configuration has been set' do
-      it 'raises a InvalidFetchOptions error' do
-        expect { mapping.assign }.to raise_error Hyrax::Ingest::Errors::InvalidFetchOptions
+  describe 'map_all!' do
+    it 'calls #map! on all contained MapOperation instances' do
+      subject.map_operations.each do |map_operation|
+        expect(map_operation).to receive(:"map!").with(no_args).exactly(1).times
       end
-    end
-
-    context 'when fetch configuration has been set, but no assignment configuration has been set' do
-      before { mapping.from(method: :class)}
-      it 'raises an InvalidAssignmentOptions error' do
-        expect { mapping.assign }.to raise_error Hyrax::Ingest::Errors::InvalidAssignmentOptions
-      end
-    end
-
-    context 'when configured to fetch values from an XML file' do
-      context 'and when configured to assign to an RDF property' do
-
-        let(:assign_target) { TestModel.new }
-
-        before do
-          class TestModel < ActiveFedora::Base
-            property test_property, predicate: ::RDF::URI.new('http://example.org#test_property')
-          end
-        end
-
-        it 'assigns the value to the RDF property from the XML file' do
-          expect(assign_target.test_property).to eq 'TODO: PUT IN THE ACTUAL VALUE HERE'
-        end
-      end
+      subject.map_all!
     end
   end
 end
-
-
-
-# mapping.from(fetch_config).fetch
-# => returns a value
-
-# mapping.to(assign_config).assign
-# => 
